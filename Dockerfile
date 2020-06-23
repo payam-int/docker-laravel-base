@@ -22,16 +22,18 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 RUN useradd -G www-data,root -u $uid -d /home/$user $user
 RUN mkdir -p /home/$user/.composer && \
-    chown -R $user:$user /home/$user
+    chown -R $user:$user /home/$user /var/lib/nginx /var/log/nginx
+
+RUN sed -i -e 's/user\swww-data;/ /g' /etc/nginx/nginx.conf
 
 COPY ./run-php-nginx.sh /usr/local/bin/run-php-nginx
 RUN chmod a+x /usr/local/bin/run-php-nginx
-
 
 WORKDIR /var/www
 
 COPY ./nginx.conf /etc/nginx/sites-enabled/default
 
 USER $user
+EXPOSE 8080
 
 CMD ["run-php-nginx"]
